@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd:*)",
+      "Bash(gh repo:*)",
+      "Bash(tail:*)",
+      "Bash(cd /c/Users/manis/Documents/Polarj/WarRoom/doomscroll-party && npx prisma generate 2>&1)",
+      "Bash(cd /c/Users/manis/Documents/Polarj/WarRoom/doomscroll-party && npx prisma generate 2>&1 && npx prisma db push 2>&1)",
+      "Bash(cd /c/Users/manis/Documents/Polarj/WarRoom/doomscroll-party && npx tsc --project tsconfig.server.json --noEmit 2>&1)",
+      "Bash(head:*)",
+      "Bash(curl:*)",
+      "Bash(netstat:*)",
+      "Bash(taskkill:*)"
+    ]
+  }
+}

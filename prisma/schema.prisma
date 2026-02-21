@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  rooms         Room[]       @relation("RoomHost")
+  memberships   RoomMember[]
+  messages      Message[]
+  createdAt     DateTime     @default(now())
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Room {
+  id          String       @id @default(cuid())
+  name        String
+  description String?
+  code        String       @unique
+  hostId      String
+  host        User         @relation("RoomHost", fields: [hostId], references: [id])
+  status      String       @default("waiting") // waiting, active, ended
+  members     RoomMember[]
+  reels       ReelQueue[]
+  messages    Message[]
+  currentReelIndex Int     @default(0)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model RoomMember {
+  id       String  @id @default(cuid())
+  userId   String
+  roomId   String
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room     Room    @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  isActive Boolean @default(true)
+  joinedAt DateTime @default(now())
+
+  @@unique([userId, roomId])
+}
+
+model ReelQueue {
+  id        String   @id @default(cuid())
+  roomId    String
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  url       String
+  title     String?
+  thumbnail String?
+  authorName String?
+  position  Int
+  addedAt   DateTime @default(now())
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  roomId    String
+  userId    String
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String
+  type      String   @default("text") // text, system, reaction
+  createdAt DateTime @default(now())
+}
